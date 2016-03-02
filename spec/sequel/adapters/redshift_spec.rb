@@ -14,13 +14,11 @@ RSpec.describe Sequel::Redshift do
       end
     end
 
-    context 'multiple sortkeys' do
-      it 'accepts multiple sortkeys' do
-        sql = 'CREATE TABLE "foos" () SORTKEY (hello, world)'
-        expect(DB).to receive(:execute_ddl).with(sql)
+    it 'accepts multiple sortkeys' do
+      sql = 'CREATE TABLE "foos" () SORTKEY (hello, world)'
+      expect(DB).to receive(:execute_ddl).with(sql)
 
-        DB.create_table :foos, sortkeys: [:hello, :world]
-      end
+      DB.create_table :foos, sortkeys: [:hello, :world]
     end
   end
 
@@ -38,7 +36,43 @@ RSpec.describe Sequel::Redshift do
     end
 
     it 'does not accept other sortstyles' do
-      expect { DB.create_table :foos, sortkeys: :hello, sortstyle: :other }.to raise_error(ArgumentError, 'only :compound and :interleaved sortstyles are allowed')
+      expect { DB.create_table :foos, sortkeys: :hello, sortstyle: :other }.to raise_error(ArgumentError, 'sortstyle must be one of :compound or :interleaved')
+    end
+  end
+
+  describe 'distkey' do
+    it 'accepts a distkey option' do
+      sql = 'CREATE TABLE "chocolates" ("region" varchar(255), "richness" integer) DISTSTYLE KEY DISTKEY (region)'
+      expect(DB).to receive(:execute_ddl).with(sql)
+
+      DB.create_table :chocolates, distkey: :region do
+        varchar :region
+        Integer :richness
+      end
+    end
+
+    it 'allows you to change the diststyle' do
+      sql = 'CREATE TABLE "chocolates" ("region" varchar(255), "richness" integer) DISTSTYLE ALL DISTKEY (richness)'
+      expect(DB).to receive(:execute_ddl).with(sql)
+
+      DB.create_table :chocolates, distkey: :richness, diststyle: :all do
+        varchar :region
+        Integer :richness
+      end
+    end
+
+    it 'allows EVEN distribution style' do
+      sql = 'CREATE TABLE "chocolates" ("region" varchar(255), "richness" integer) DISTSTYLE EVEN DISTKEY (richness)'
+      expect(DB).to receive(:execute_ddl).with(sql)
+
+      DB.create_table :chocolates, distkey: :richness, diststyle: :even do
+        varchar :region
+        Integer :richness
+      end
+    end
+
+    it 'does not accept invalid distkeys' do
+      expect { DB.create_table :monkeys, distkey: :species, diststyle: :bananas }.to raise_error(ArgumentError, 'diststyle must be one of :even, key, or :all')
     end
   end
 end

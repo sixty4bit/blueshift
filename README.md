@@ -1,8 +1,6 @@
 # Blueshift
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/blueshift`. To experiment with that code, run `bin/console` for an interactive prompt.
-
-TODO: Delete this and the text above, and describe your gem
+The Amazon Redshift adapter for Sequel
 
 ## Installation
 
@@ -22,8 +20,35 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
++create_table+ Options:
 
+    :distkey => column name
+
+        The Distribution Key. When specified, the :diststyle is set to :key unless otherwise specified
+
+    :diststyle => `:even` (default), `:key`, or `:all`
+
+        The Distribution Style. This option has no effect unless `:distkey` is also specified
+
+    :sortkeys => a list of column names
+
+        The Sort Keys. Depending on your `:sortstyle`, there is a maximum number of sortkeys that you can specify:
+          Compound: up to 400 sortkeys
+          Interleaved: up to 8 sortkeys
+        
+    :sortstyle => :compound (default) or :interleaved
+    
+        The Sort Style. This option has no effect unless `:sortkeys` is also specified
+        
+For example:
+
+    create_table :chocolates, distkey: :region, diststyle: :all, sortkeys: [:richness, :organic], sortstyle: :interleaved do
+      String  :region
+      Integer :richness
+      boolean :organic
+      String  :description
+    end
+       
 ## Development
 
 After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
@@ -32,5 +57,5 @@ To install this gem onto your local machine, run `bundle exec rake install`. To 
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/blueshift.
+Bug reports and pull requests are welcome on GitHub at https://github.com/influitive/blueshift.
 
