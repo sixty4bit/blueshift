@@ -36,7 +36,7 @@ Or install it yourself as:
       Compound: up to 400 sortkeys
       Interleaved: up to 8 sortkeys
     
-- `:sortstyle` => :compound (default) or :interleaved
+- `:sortstyle` => `:compound` (default) or `:interleaved`
 
     The Sort Style. This option has no effect unless `:sortkeys` is also specified
         
