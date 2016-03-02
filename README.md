@@ -20,7 +20,7 @@ Or install it yourself as:
 
 ## Usage
 
-+create_table+ Options:
+[`create_table`](http://sequel.jeremyevans.net/rdoc/classes/Sequel/Database.html#method-i-create_table) Options:
 
     :distkey => column name
 
@@ -42,12 +42,14 @@ Or install it yourself as:
         
 For example:
 
-    create_table :chocolates, distkey: :region, diststyle: :all, sortkeys: [:richness, :organic], sortstyle: :interleaved do
-      String  :region
-      Integer :richness
-      boolean :organic
-      String  :description
-    end
+```ruby
+create_table :chocolates, distkey: :region, diststyle: :all, sortkeys: [:richness, :organic], sortstyle: :interleaved do
+    String  :region
+    Integer :richness
+    boolean :organic
+    String  :description
+end
+```
        
 ## Development
 
