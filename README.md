@@ -50,6 +50,58 @@ create_table :chocolates, distkey: :region, diststyle: :all, sortkeys: [:richnes
     String  :description
 end
 ```
+
+
+### Migrations (coming soon)
+
+Blueshift unifies migrations for your Postgres and Redshift databases into one file. Postgres migrations use ActiveRecord::Migration and Redshift uses Sequel.
+(I hate that this is separated, but that is the state that our app currently exists in until we sort it out.)
+
+```ruby
+Blueshift.migration do
+  up do
+    # applies to Postgres + Redshift
+  end
+
+  down do
+    # applies to Postgres + Redshift
+  end
+end
+```
+
+If you want different migration behaviours for Redshift than for Postgres, you can override them by using `redup` and `reddown`:
+
+```ruby
+Blueshift.migration do
+  up do
+    # applies to Postgres only, because redup is defined below
+  end
+
+  down do
+    # applies to Postgres + Redshift
+  end
+  
+  redup do
+    # applies to Redshift only
+  end
+end
+```
+
+If you want your migration to only run on Postgres, you can specify it as an argument for the migration block:
+
+```ruby
+Blueshift.migration do
+  pg_only!
+  
+  up do
+    # applies to Postgres only
+  end
+
+  down do
+    # applies to Postgres only
+  end
+end
+```
        
 ## Development
 
