@@ -4,7 +4,7 @@ $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 require 'blueshift/version'
 
 Gem::Specification.new do |spec|
-  spec.name          = 'blueshift'
+  spec.name          = 'blue-shift'
   spec.version       = Blueshift::VERSION
   spec.authors       = ['Gabriel Mansour']
   spec.email         = ['dev+gabriel@influitive.com']
@@ -18,7 +18,7 @@ Gem::Specification.new do |spec|
   spec.executables   = spec.files.grep(%r{^bin/}) { |f| File.basename(f) }
   spec.require_paths = ['lib']
 
-  spec.add_dependency 'sequel', '~> 0'
+  spec.add_dependency 'sequel', '~> 4'
   spec.add_dependency 'pg', '~> 0'
 
   spec.add_development_dependency 'bundler', '~> 1.10'

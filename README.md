@@ -7,7 +7,7 @@ The Amazon Redshift adapter for Sequel
 Add this line to your application's Gemfile:
 
 ```ruby
-gem 'blueshift'
+gem 'blue-shift'
 ```
 
 And then execute:
@@ -16,7 +16,7 @@ And then execute:
 
 Or install it yourself as:
 
-    $ gem install blueshift
+    $ gem install blue-shift
 
 ## Usage
 
