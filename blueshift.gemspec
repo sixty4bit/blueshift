@@ -9,6 +9,7 @@ Gem::Specification.new do |spec|
   spec.authors       = ['Gabriel Mansour']
   spec.email         = ['dev+gabriel@influitive.com']
 
+  spec.description   = %q{Amazon Redshift adapter for Sequel}
   spec.summary       = %q{Amazon Redshift adapter for Sequel}
   spec.homepage      = 'https://github.com/influitive/blueshift'
 
