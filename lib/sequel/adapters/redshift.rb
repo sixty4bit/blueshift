@@ -29,15 +29,21 @@ module Sequel
       def create_table_sql(name, generator, options)
         validate_options!(options)
         super.tap do |sql|
+          sql << diststyle_sql(options)
           sql << distkey_sql(options)
           sql << sortstyle_sql(options)
         end
       end
 
+      def diststyle_sql(options)
+        if options[:diststyle]
+          " DISTSTYLE #{options[:diststyle].to_s.upcase}"
+        end.to_s
+      end
+
       def distkey_sql(options)
         if options[:distkey]
-          options[:diststyle] ||= :key
-          " DISTSTYLE #{options[:diststyle].to_s.upcase} DISTKEY (#{options[:distkey]})"
+          " DISTKEY (#{options[:distkey]})"
         end.to_s
       end
 

@@ -26,9 +26,9 @@ Or install it yourself as:
 
     The Distribution Key. When specified, the :diststyle is set to :key unless otherwise specified
 
-- `:diststyle` => `:even` (default), `:key`, or `:all`
+- `:diststyle` => `:even` (implicit default), `:key`, or `:all`
 
-    The Distribution Style. This option has no effect unless `:distkey` is also specified
+    The Distribution Style. When `:distkey` is also specified, only `:key` DISTSTYLE is supported by Redshift.
 
 - `:sortkeys` => a list of column names
 

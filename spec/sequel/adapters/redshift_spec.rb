@@ -42,7 +42,7 @@ RSpec.describe Sequel::Redshift do
 
   describe 'distkey' do
     it 'accepts a distkey option' do
-      sql = 'CREATE TABLE "chocolates" ("region" varchar(255), "richness" integer) DISTSTYLE KEY DISTKEY (region)'
+      sql = 'CREATE TABLE "chocolates" ("region" varchar(255), "richness" integer) DISTKEY (region)'
       expect(DB).to receive(:execute_ddl).with(sql)
 
       DB.create_table :chocolates, distkey: :region do
@@ -50,29 +50,31 @@ RSpec.describe Sequel::Redshift do
         Integer :richness
       end
     end
+  end
 
+  describe 'diststyle' do
     it 'allows you to change the diststyle' do
-      sql = 'CREATE TABLE "chocolates" ("region" varchar(255), "richness" integer) DISTSTYLE ALL DISTKEY (richness)'
+      sql = 'CREATE TABLE "chocolates" ("region" varchar(255), "richness" integer) DISTSTYLE ALL'
       expect(DB).to receive(:execute_ddl).with(sql)
 
-      DB.create_table :chocolates, distkey: :richness, diststyle: :all do
+      DB.create_table :chocolates, diststyle: :all do
         varchar :region
         Integer :richness
       end
     end
 
     it 'allows EVEN distribution style' do
-      sql = 'CREATE TABLE "chocolates" ("region" varchar(255), "richness" integer) DISTSTYLE EVEN DISTKEY (richness)'
+      sql = 'CREATE TABLE "chocolates" ("region" varchar(255), "richness" integer) DISTSTYLE EVEN'
       expect(DB).to receive(:execute_ddl).with(sql)
 
-      DB.create_table :chocolates, distkey: :richness, diststyle: :even do
+      DB.create_table :chocolates, diststyle: :even do
         varchar :region
         Integer :richness
       end
     end
 
     it 'does not accept invalid distkeys' do
-      expect { DB.create_table :monkeys, distkey: :species, diststyle: :bananas }.to raise_error(ArgumentError, 'diststyle must be one of :even, key, or :all')
+      expect { DB.create_table :monkeys, diststyle: :bananas }.to raise_error(ArgumentError, 'diststyle must be one of :even, key, or :all')
     end
   end
 end
