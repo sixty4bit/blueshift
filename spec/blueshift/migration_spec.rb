@@ -75,13 +75,13 @@ describe Blueshift::Migration do
       expect(Sequel::Migrator).to receive(:run).ordered do |db, dir, options|
         expect(db).to eq(Blueshift::POSTGRES_DB)
         expect(dir).to end_with('db/migrations')
-        expect(options).to eq(table: :schema_info_postgres)
+        expect(options).to eq(column: :postgres_version)
       end
 
       expect(Sequel::Migrator).to receive(:run).ordered do |db, dir, options|
         expect(db).to eq(Blueshift::REDSHIFT_DB)
         expect(dir).to end_with('db/migrations')
-        expect(options).to eq(table: :schema_info_redshift)
+        expect(options).to eq(column: :redshift_version)
       end
       Blueshift::Migration.run!
     end
