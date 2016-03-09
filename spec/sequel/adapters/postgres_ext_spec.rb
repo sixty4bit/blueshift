@@ -5,7 +5,7 @@ RSpec.describe Sequel::Postgres do
     describe 'column types' do
       describe 'string uuid' do
         it 'supports fixed-width string uuid columns' do
-          sql = 'CREATE TABLE "chocolates" ("id" char(36) NOT NULL PRIMARY KEY)'
+          sql = 'CREATE TABLE "chocolates" ("id" char(36) NOT NULL)'
           expect(PGDB).to receive(:execute_ddl).with(sql)
 
           PGDB.create_table :chocolates do
