@@ -6,6 +6,7 @@ require 'blueshift'
 
 
 DB = Sequel.connect(ENV['REDSHIFT_URL'] || 'redshift://localhost/db', logger: Logger.new('test.log'))
+PGDB = Sequel.connect('postgresql://localhost/db', logger: Logger.new('test.log'))
 
 RSpec.configure do |config|
   # These two settings work together to allow you to limit a spec run

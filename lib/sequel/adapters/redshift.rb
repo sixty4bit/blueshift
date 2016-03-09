@@ -1,4 +1,4 @@
-require 'sequel/adapters/postgres'
+require 'sequel/adapters/postgres_ext'
 
 module Sequel
   module Redshift
@@ -23,6 +23,10 @@ module Sequel
       end
 
       private
+
+      def type_literal_generic_string(column)
+        super(column.merge(text: false))
+      end
 
       def create_table_sql(name, generator, options)
         validate_options!(options)

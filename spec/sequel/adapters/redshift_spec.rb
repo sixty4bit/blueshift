@@ -78,6 +78,30 @@ RSpec.describe Sequel::Redshift do
     it 'does not accept invalid distkeys' do
       expect { DB.create_table :monkeys, diststyle: :bananas }.to raise_error(ArgumentError, 'diststyle must be one of :even, key, or :all')
     end
+
+    describe 'column types' do
+      describe 'string uuid' do
+        it 'supports fixed-width string uuid columns' do
+          sql = 'CREATE TABLE "chocolates" ("id" char(36) NOT NULL PRIMARY KEY)'
+          expect(DB).to receive(:execute_ddl).with(sql)
+
+          DB.create_table :chocolates do
+            Suuid :id
+          end
+        end
+      end
+
+      describe 'string' do
+        it 'uses varchar instead of text column type' do
+          sql = 'CREATE TABLE "chocolates" ("name" varchar(255))'
+          expect(DB).to receive(:execute_ddl).with(sql)
+
+          DB.create_table :chocolates do
+             String :name
+          end
+        end
+      end
+    end
   end
 
   describe '#schema' do
