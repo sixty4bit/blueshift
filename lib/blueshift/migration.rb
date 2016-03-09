@@ -7,12 +7,13 @@ module Blueshift
   POSTGRES_DB = Sequel.connect(ENV.fetch('DATABASE_URL'), logger: Logger.new('postgres.log'))
 
   class Migration
-    attr_reader :postgres_migration, :redshift_migration
+    attr_reader :postgres_migration, :redshift_migration, :use_transactions
     MIGRATION_DIR = File.join(Dir.pwd, 'db/migrations')
 
     def initialize(&block)
       @postgres_migration = Sequel::SimpleMigration.new
       @redshift_migration = Sequel::SimpleMigration.new
+      @use_transactions = true
 
       Sequel::Migration.descendants << self
       instance_eval(&block)
@@ -43,9 +44,19 @@ module Blueshift
       end
     end
 
-    def self.run!
-      Sequel::Migrator.run(POSTGRES_DB, MIGRATION_DIR, column: :postgres_version)
-      Sequel::Migrator.run(REDSHIFT_DB, MIGRATION_DIR, column: :redshift_version)
+    class << self
+      def run_pg!
+        Sequel::Migrator.run(POSTGRES_DB, MIGRATION_DIR, column: :postgres_version)
+      end
+
+      def run_redshift!
+        Sequel::Migrator.run(REDSHIFT_DB, MIGRATION_DIR, column: :redshift_version)
+      end
+
+      def run_both!
+        run_pg!
+        run_redshift!
+      end
     end
 
     private

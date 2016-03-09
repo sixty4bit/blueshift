@@ -70,7 +70,7 @@ describe Blueshift::Migration do
     end
   end
 
-  describe '.run' do
+  describe '.run_both!' do
     it 'should run the migrations for both Postgres and Redshift' do
       expect(Sequel::Migrator).to receive(:run).ordered do |db, dir, options|
         expect(db).to eq(Blueshift::POSTGRES_DB)
@@ -83,7 +83,15 @@ describe Blueshift::Migration do
         expect(dir).to end_with('db/migrations')
         expect(options).to eq(column: :redshift_version)
       end
-      Blueshift::Migration.run!
+      Blueshift::Migration.run_both!
+    end
+
+    it 'should work' do
+      Blueshift::POSTGRES_DB[:schema_migrations].delete
+      Blueshift::REDSHIFT_DB[:schema_migrations].delete
+      FileUtils.mkdir_p('db/migrations')
+      File.open('db/migrations/20011225115959_create_dummy.rb', 'w') { |f| f << 'Blueshift.migration { up {}; down {}; redup {}; reddown {} }' }
+      expect { Blueshift::Migration.run_both! }.to_not raise_error
     end
   end
 end
