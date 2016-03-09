@@ -77,4 +77,17 @@ RSpec.describe Sequel::Redshift do
       expect { DB.create_table :monkeys, diststyle: :bananas }.to raise_error(ArgumentError, 'diststyle must be one of :even, key, or :all')
     end
   end
+
+  describe '#schema' do
+    before do
+      DB.create_table!(:chocolates) do
+        String :id, size: 36, fixed: true, primary_key: true
+        String :region
+      end
+    end
+
+    it 'should not raise an error' do
+      expect { DB.schema(:chocolates) }.to_not raise_error
+    end
+  end
 end
