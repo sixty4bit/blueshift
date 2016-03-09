@@ -3,6 +3,8 @@ require 'spec_helper'
 RSpec.describe Sequel::Redshift do
   it { is_expected.to include Sequel::Postgres }
 
+  it { expect(DB.supports_index_parsing?).to eq false }
+
   describe '#create_table' do
     describe 'sortkeys' do
       let(:sql) { 'CREATE TABLE "foos" () SORTKEY (hello)' }

@@ -18,6 +18,10 @@ module Sequel
         []
       end
 
+      def supports_index_parsing?
+        false
+      end
+
       private
 
       def create_table_sql(name, generator, options)
@@ -98,9 +102,6 @@ module Sequel
         end
       end
 
-      # OVERRIDE since indexes are not enforced by Redshift
-      def indexes(table, opts=OPTS)
-      end
     end
 
     class Dataset < Postgres::Dataset
