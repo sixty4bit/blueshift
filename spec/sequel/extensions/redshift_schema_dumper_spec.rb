@@ -6,9 +6,9 @@ describe Sequel::Redshift::SchemaDumper do
   let(:options) { {distkey: :region, sortkeys: [:colour, :crunchiness]} }
   let(:create_macro) do
     [create_table,
-     '  String :region, :size=>256',
-     '  String :crunchiness, :size=>256',
-     '  String :colour, :size=>256',
+     '  String :region, :size=>255',
+     '  String :crunchiness, :size=>255',
+     '  String :colour, :size=>255',
      'end',].join("\n")
   end
 

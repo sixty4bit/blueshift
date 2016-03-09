@@ -1,5 +1,5 @@
 require 'sequel/adapters/postgres'
-require 'blueshift/suuid'
+require 'blueshift/uuid'
 
 module Sequel
   module Postgres
