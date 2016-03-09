@@ -30,11 +30,12 @@ module Sequel
 
       def create_table_sql(name, generator, options)
         validate_options!(options)
-        super.tap do |sql|
-          sql << diststyle_sql(options)
-          sql << distkey_sql(options)
-          sql << sortstyle_sql(options)
-        end
+        sql = super
+        sql += diststyle_sql(options)
+        sql += distkey_sql(options)
+        sql += sortstyle_sql(options)
+
+        sql
       end
 
       def diststyle_sql(options)
