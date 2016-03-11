@@ -72,26 +72,33 @@ describe Blueshift::Migration do
 
   describe '.run_both!' do
     it 'should run the migrations for both Postgres and Redshift' do
-      expect(Sequel::Migrator).to receive(:run).ordered do |db, dir, options|
+      expect(Sequel::Migrator).to receive(:run).ordered do |db, dir|
         expect(db).to eq(Blueshift::POSTGRES_DB)
         expect(dir).to end_with('db/migrations')
-        expect(options).to eq(column: :postgres_version)
       end
 
-      expect(Sequel::Migrator).to receive(:run).ordered do |db, dir, options|
+      expect(Sequel::Migrator).to receive(:run).ordered do |db, dir|
         expect(db).to eq(Blueshift::REDSHIFT_DB)
         expect(dir).to end_with('db/migrations')
-        expect(options).to eq(column: :redshift_version)
       end
       Blueshift::Migration.run_both!
     end
 
-    it 'should work' do
-      Blueshift::POSTGRES_DB[:schema_migrations].delete
-      Blueshift::REDSHIFT_DB[:schema_migrations].delete
+    xit 'should work' do
+      Blueshift::POSTGRES_DB[:schema_migrations].delete if Blueshift::POSTGRES_DB.table_exists?(:schema_migrations)
+      Blueshift::REDSHIFT_DB[:schema_migrations].delete if Blueshift::REDSHIFT_DB.table_exists?(:schema_migrations)
       FileUtils.mkdir_p('db/migrations')
       File.open('db/migrations/20011225115959_create_dummy.rb', 'w') { |f| f << 'Blueshift.migration { up {}; down {}; redup {}; reddown {} }' }
       expect { Blueshift::Migration.run_both! }.to_not raise_error
+    end
+  end
+
+  describe '.insert_into_schema_migrations' do
+    let(:migrations_count) {  Dir["db/migrations/*"].count }
+
+    it 'writes to the schema migrations table' do
+      expect_any_instance_of(Sequel::Postgres::Dataset).to receive(:insert).exactly(migrations_count).times
+      Blueshift::Migration.insert_into_schema_migrations(Blueshift::POSTGRES_DB)
     end
   end
 end
