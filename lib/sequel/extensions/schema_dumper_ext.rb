@@ -11,7 +11,9 @@ module Sequel
     def column_schema_to_ruby_type(schema)
       case schema[:db_type].downcase
       when 'uuid'
-        {type: :uuid}
+        { type: :uuid }
+      when /char(?:acter)?\(36\)/
+        { type: Suuid }
       else
         column_schema_to_ruby_type_without_uuid(schema)
       end

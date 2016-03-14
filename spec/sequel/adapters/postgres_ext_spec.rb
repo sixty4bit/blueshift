@@ -25,6 +25,7 @@ RSpec.describe Sequel::Postgres do
       ['create_table!(:apples) do',
        '  String :crunchiness, :text=>true',
        '  column :id, :uuid',
+       '  Suuid :foreign_table_id, :null=>false',
        'end'].join("\n")
     end
 
@@ -32,6 +33,7 @@ RSpec.describe Sequel::Postgres do
       PGDB.create_table!(:apples, sortkeys: [:crunchiness]) do
         String :crunchiness
         column :id, :uuid
+        Suuid :foreign_table_id
       end
     end
 
