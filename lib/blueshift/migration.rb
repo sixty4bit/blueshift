@@ -9,8 +9,8 @@ module Blueshift
   class Migration
     attr_reader :postgres_migration, :redshift_migration, :use_transactions
     MIGRATION_DIR = File.join(Dir.pwd, 'db/migrations')
-    SCHEMA_COLUMN = :filename
     SCHEMA_TABLE  = :schema_migrations
+    SCHEMA_COLUMN = :filename
 
     def initialize(&block)
       @postgres_migration = Sequel::SimpleMigration.new
@@ -46,15 +46,6 @@ module Blueshift
       end
     end
 
-    def self.insert_into_schema_migrations(db)
-      db.from(SCHEMA_TABLE).delete
-      migration_files = Dir["#{MIGRATION_DIR}/*"]
-      migration_files.each do |path|
-        f = File.basename(path)
-        db.from(SCHEMA_TABLE).insert(SCHEMA_COLUMN=>f)
-      end
-    end
-
     class << self
       def run_pg!
         Sequel::Migrator.run(POSTGRES_DB, MIGRATION_DIR)
@@ -67,6 +58,24 @@ module Blueshift
       def run_both!
         run_pg!
         run_redshift!
+      end
+
+      def insert_into_schema_migrations(db)
+        ds = schema_dataset(db)
+        ds.delete
+        migration_files = Dir["#{MIGRATION_DIR}/*"]
+        migration_files.each do |path|
+          f = File.basename(path)
+          ds.insert(SCHEMA_COLUMN=>f)
+        end
+      end
+
+      def schema_dataset(db)
+        ds = db.from(SCHEMA_TABLE)
+        unless db.table_exists?(SCHEMA_TABLE)
+          db.create_table(SCHEMA_TABLE) { String SCHEMA_COLUMN, primary_key: true }
+        end
+        ds
       end
     end
 
