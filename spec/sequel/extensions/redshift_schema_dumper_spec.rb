@@ -24,7 +24,7 @@ describe Sequel::Redshift::SchemaDumper do
     subject { DB.dump_table_schema(:apples) }
 
     context 'with distkey and sortkeys' do
-      let(:create_table) { 'create_table(:apples, :distkey=>:region, :sortkeys=>[:colour, :crunchiness]) do' }
+      let(:create_table) { 'create_table!(:apples, :distkey=>:region, :sortkeys=>[:colour, :crunchiness]) do' }
       it 'should output the distkey and sortkeys' do
         is_expected.to eq create_macro
       end
@@ -32,13 +32,13 @@ describe Sequel::Redshift::SchemaDumper do
 
     context 'no diskey or sortkeys' do
       let(:options) { {} }
-      let(:create_table) { 'create_table(:apples) do' }
+      let(:create_table) { 'create_table!(:apples) do' }
       it { is_expected.to eq create_macro }
     end
 
     context 'with sortstyle' do
       let(:options) { {distkey: :region, sortkeys: [:colour, :region, :crunchiness], sortstyle: :interleaved} }
-      let(:create_table) { 'create_table(:apples, :distkey=>:region, :sortkeys=>[:colour, :region, :crunchiness], :sortstyle=>:interleaved) do' }
+      let(:create_table) { 'create_table!(:apples, :distkey=>:region, :sortkeys=>[:colour, :region, :crunchiness], :sortstyle=>:interleaved) do' }
       it { is_expected.to eq create_macro }
     end
   end
