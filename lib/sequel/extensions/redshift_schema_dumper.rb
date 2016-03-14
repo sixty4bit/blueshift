@@ -9,7 +9,7 @@ module Sequel
         gen = dump_table_generator(table, options)
         commands = [gen.dump_columns, gen.dump_constraints, gen.dump_indexes].reject { |x| x == '' }.join("\n\n")
 
-        "create_table(#{table.inspect}#{table_options(table, gen, options)}) do\n#{commands.gsub(/^/o, '  ')}\nend"
+        "create_table!(#{table.inspect}#{table_options(table, gen, options)}) do\n#{commands.gsub(/^/o, '  ')}\nend"
       end
 
       def table_options(table, gen, options)

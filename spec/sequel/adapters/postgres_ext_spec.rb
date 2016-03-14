@@ -1,5 +1,7 @@
 require 'spec_helper'
 
+PGDB.extension :schema_dumper
+
 RSpec.describe Sequel::Postgres do
   describe '#create_table' do
     describe 'column types' do
@@ -14,5 +16,23 @@ RSpec.describe Sequel::Postgres do
         end
       end
     end
+  end
+
+  describe 'schema dumper' do
+    subject { PGDB.dump_table_schema(:apples) }
+
+    let(:create_macro) do
+      ['create_table!(:apples) do',
+       '  String :crunchiness, :text=>true',
+       'end'].join("\n")
+    end
+
+    before do
+      PGDB.create_table!(:apples, sortkeys: [:crunchiness]) do
+        String :crunchiness
+      end
+    end
+
+    it { is_expected.to eq create_macro }
   end
 end
