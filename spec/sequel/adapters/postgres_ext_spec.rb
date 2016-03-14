@@ -24,12 +24,14 @@ RSpec.describe Sequel::Postgres do
     let(:create_macro) do
       ['create_table!(:apples) do',
        '  String :crunchiness, :text=>true',
+       '  column :id, :uuid',
        'end'].join("\n")
     end
 
     before do
       PGDB.create_table!(:apples, sortkeys: [:crunchiness]) do
         String :crunchiness
+        column :id, :uuid
       end
     end
 
