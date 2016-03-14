@@ -32,7 +32,7 @@ namespace :pg do
   task :migrate do
     Blueshift::POSTGRES_DB.logger = logger
     Blueshift::Migration.run_pg!
-    rake 'pg:schema:dump'
+    Rake::Task['pg:schema:dump'].invoke
   end
 end
 
@@ -59,17 +59,14 @@ namespace :redshift do
   task :migrate do
     Blueshift::REDSHIFT_DB.logger = logger
     Blueshift::Migration.run_redshift!
-    rake 'redshift:schema:dump'
+    Rake::Task['redshift:schema:dump'].invoke
   end
 end
 
 namespace :blueshift do
-  desc 'Runs migrations for both Postgres and Redshift'
+  desc 'Runs migrations for both Postgres and Redshift. Not really that useful most of the time...'
   task :migrate => ['pg:migrate', 'redshift:migrate'] do
     puts 'Running migrations for Postgres and Redshift...', ''
   end
-
-  desc 'dummy'
-  task(:dummy) {}
 end
 
