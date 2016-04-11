@@ -3,8 +3,8 @@ require 'sequel/extensions/migration'
 require 'logger'
 
 module Blueshift
-  REDSHIFT_DB = Sequel.connect(ENV.fetch('REDSHIFT_URL'), logger: Logger.new('redshift.log'))
-  POSTGRES_DB = Sequel.connect(ENV.fetch('DATABASE_URL'), logger: Logger.new('postgres.log'))
+  REDSHIFT_DB = Sequel.connect(ENV.fetch('REDSHIFT_URL', 'redshift://'), logger: Logger.new('redshift.log'))
+  POSTGRES_DB = Sequel.connect(ENV.fetch('DATABASE_URL', 'postgres://'), logger: Logger.new('postgres.log'))
 
   class Migration
     attr_reader :postgres_migration, :redshift_migration, :use_transactions

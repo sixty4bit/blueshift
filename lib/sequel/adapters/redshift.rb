@@ -77,7 +77,10 @@ module Sequel
                                      SQL::Function.new(:format_type, :pg_type__oid, :pg_attribute__atttypmod).as(:db_type),
                                      SQL::Function.new(:pg_get_expr, :pg_attrdef__adbin, :pg_class__oid).as(:default),
                                      SQL::BooleanExpression.new(:NOT, :pg_attribute__attnotnull).as(:allow_null),
-                                     SQL::Function.new(:COALESCE, SQL::BooleanExpression.from_value_pairs(:name => 'id'), false).as(:primary_key)).
+                                     SQL::Function.new(:COALESCE,
+                                                       SQL::BooleanExpression.from_value_pairs(:name => 'id'),
+                                                       schema_migrations_column_name(table_name),
+                                                       false).as(:primary_key)).
             from(:pg_class).
             join(:pg_attribute, :attrelid=>:oid).
             join(:pg_type, :oid=>:atttypid).
@@ -107,6 +110,9 @@ module Sequel
         end
       end
 
+      def schema_migrations_column_name(table_name)
+        #SQL::BooleanExpression.from_value_pairs(:name => 'filename') if table_name == :schema_migrations
+      end
     end
 
     class Dataset < Postgres::Dataset

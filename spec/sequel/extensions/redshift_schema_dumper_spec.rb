@@ -41,6 +41,16 @@ describe Sequel::Redshift::SchemaDumper do
       let(:create_table) { 'create_table!(:apples, :distkey=>:region, :sortkeys=>[:colour, :region, :crunchiness], :sortstyle=>:interleaved) do' }
       it { is_expected.to eq create_macro }
     end
+
+    context 'schema_migrations table' do
+      before do
+        DB.drop_table?(:apples)
+        DB.create_table!(:schema_migrations) { String :filename, primary_key: true }
+      end
+
+      let(:create_macro) { "create_table!(schema_migrations)\n  String :filename\n\n  primary_key [:filename]\nend" }
+      it { is_expected.to eq create_macro }
+    end
   end
 
   describe '#dump_schema_migration' do
