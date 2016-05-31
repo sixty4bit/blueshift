@@ -27,7 +27,7 @@ module Sequel
       private
 
       def table_diststyle(table)
-        self[:pg_class].where(relname: table).map(:reldiststyle).first
+        self[:pg_class].where(relname: table.to_s).map(:reldiststyle).first
       end
 
       def table_distkey(table)
