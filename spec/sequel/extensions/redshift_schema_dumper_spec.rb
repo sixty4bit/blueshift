@@ -36,6 +36,12 @@ describe Sequel::Redshift::SchemaDumper do
       it { is_expected.to eq create_macro }
     end
 
+    context 'only with diststyle' do
+      let(:options) { {diststyle: :all} }
+      let(:create_table) { 'create_table!(:apples, :diststyle=>:all) do' }
+      it { is_expected.to eq create_macro }
+    end
+
     context 'with sortstyle' do
       let(:options) { {distkey: :region, sortkeys: [:colour, :region, :crunchiness], sortstyle: :interleaved} }
       let(:create_table) { 'create_table!(:apples, :distkey=>:region, :sortkeys=>[:colour, :region, :crunchiness], :sortstyle=>:interleaved) do' }

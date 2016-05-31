@@ -4,6 +4,7 @@ module Sequel
   module Redshift
     module SchemaDumper
       include Sequel::SchemaDumper
+      DISTSTYLE = { 0 => :even, 1 => :key, 8 => :all }.freeze
 
       def dump_table_schema(table, options=OPTS)
         gen = dump_table_generator(table, options)
@@ -14,6 +15,7 @@ module Sequel
 
       def table_options(table, gen, options)
         s = {distkey: table_distkey(table),
+         diststyle: table_diststyle(table),
          sortkeys: table_sortkeys(table),
          sortstyle: table_sortstyle(table),
          ignore_index_errors: (!options[:same_db] && options[:indexes] != false && !gen.indexes.empty?)
@@ -23,6 +25,10 @@ module Sequel
       end
 
       private
+
+      def table_diststyle(table)
+        self[:pg_class].where(relname: table).map(:reldiststyle).first
+      end
 
       def table_distkey(table)
         key = pg_table_def(table).filter(distkey: true).map(:column).first
