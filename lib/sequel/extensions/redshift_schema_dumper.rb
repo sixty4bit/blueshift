@@ -4,7 +4,7 @@ module Sequel
   module Redshift
     module SchemaDumper
       include Sequel::SchemaDumper
-      DISTSTYLE = { 0 => :even, 1 => :key, 8 => :all }.freeze
+      DISTSTYLE = { 1 => :key, 8 => :all }.freeze # 0=>:even, which is the default
 
       def dump_table_schema(table, options=OPTS)
         gen = dump_table_generator(table, options)
@@ -27,7 +27,8 @@ module Sequel
       private
 
       def table_diststyle(table)
-        self[:pg_class].where(relname: table.to_s).map(:reldiststyle).first
+        diststyle = DISTSTYLE[ self[:pg_class].where(relname: table.to_s).map(:reldiststyle).first ]
+        diststyle unless table_distkey(table)
       end
 
       def table_distkey(table)
