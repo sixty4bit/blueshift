@@ -22,85 +22,116 @@ RSpec.describe Sequel::Redshift do
 
       DB.create_table :foos, sortkeys: [:hello, :world]
     end
-  end
 
-  describe 'sortstyle' do
-    it 'accepts a sortstyle option with sortkeys' do
-      sql = 'CREATE TABLE "foos" () INTERLEAVED SORTKEY (hello)'
-      expect(DB).to receive(:execute_ddl).with(sql)
-      DB.create_table :foos, sortkeys: :hello, sortstyle: :interleaved
-    end
-
-    it 'accepts a compound sortstyle' do
-      sql = 'CREATE TABLE "foos" () COMPOUND SORTKEY (hello)'
-      expect(DB).to receive(:execute_ddl).with(sql)
-      DB.create_table :foos, sortkeys: :hello, sortstyle: :compound
-    end
-
-    it 'does not accept other sortstyles' do
-      expect { DB.create_table :foos, sortkeys: :hello, sortstyle: :other }.to raise_error(ArgumentError, 'sortstyle must be one of :compound or :interleaved')
-    end
-  end
-
-  describe 'distkey' do
-    it 'accepts a distkey option' do
-      sql = 'CREATE TABLE "chocolates" ("region" varchar(255), "richness" integer) DISTKEY (region)'
-      expect(DB).to receive(:execute_ddl).with(sql)
-
-      DB.create_table :chocolates, distkey: :region do
-        varchar :region
-        Integer :richness
+    describe 'sortstyle' do
+      it 'accepts a sortstyle option with sortkeys' do
+        sql = 'CREATE TABLE "foos" () INTERLEAVED SORTKEY (hello)'
+        expect(DB).to receive(:execute_ddl).with(sql)
+        DB.create_table :foos, sortkeys: :hello, sortstyle: :interleaved
       end
-    end
-  end
 
-  describe 'diststyle' do
-    it 'allows you to change the diststyle' do
-      sql = 'CREATE TABLE "chocolates" ("region" varchar(255), "richness" integer) DISTSTYLE ALL'
-      expect(DB).to receive(:execute_ddl).with(sql)
+      it 'accepts a compound sortstyle' do
+        sql = 'CREATE TABLE "foos" () COMPOUND SORTKEY (hello)'
+        expect(DB).to receive(:execute_ddl).with(sql)
+        DB.create_table :foos, sortkeys: :hello, sortstyle: :compound
+      end
 
-      DB.create_table :chocolates, diststyle: :all do
-        varchar :region
-        Integer :richness
+      it 'does not accept other sortstyles' do
+        expect { DB.create_table :foos, sortkeys: :hello, sortstyle: :other }.to raise_error(ArgumentError, 'sortstyle must be one of :compound or :interleaved')
       end
     end
 
-    it 'allows EVEN distribution style' do
-      sql = 'CREATE TABLE "chocolates" ("region" varchar(255), "richness" integer) DISTSTYLE EVEN'
-      expect(DB).to receive(:execute_ddl).with(sql)
+    describe 'distkey' do
+      it 'accepts a distkey option' do
+        sql = 'CREATE TABLE "chocolates" ("region" varchar(255), "richness" integer) DISTKEY (region)'
+        expect(DB).to receive(:execute_ddl).with(sql)
 
-      DB.create_table :chocolates, diststyle: :even do
-        varchar :region
-        Integer :richness
+        DB.create_table :chocolates, distkey: :region do
+          varchar :region
+          Integer :richness
+        end
       end
     end
 
-    it 'does not accept invalid distkeys' do
-      expect { DB.create_table :monkeys, diststyle: :bananas }.to raise_error(ArgumentError, 'diststyle must be one of :even, key, or :all')
-    end
+    describe 'diststyle' do
+      it 'allows you to change the diststyle' do
+        sql = 'CREATE TABLE "chocolates" ("region" varchar(255), "richness" integer) DISTSTYLE ALL'
+        expect(DB).to receive(:execute_ddl).with(sql)
 
-    describe 'column types' do
-      describe 'string uuid' do
-        it 'supports fixed-width string uuid columns' do
-          sql = 'CREATE TABLE "chocolates" ("id" char(36) NOT NULL)'
-          expect(DB).to receive(:execute_ddl).with(sql)
-
-          DB.create_table :chocolates do
-            Suuid :id
-          end
+        DB.create_table :chocolates, diststyle: :all do
+          varchar :region
+          Integer :richness
         end
       end
 
-      describe 'string' do
-        it 'uses varchar instead of text column type' do
-          sql = 'CREATE TABLE "chocolates" ("name" varchar(255))'
-          expect(DB).to receive(:execute_ddl).with(sql)
+      it 'allows EVEN distribution style' do
+        sql = 'CREATE TABLE "chocolates" ("region" varchar(255), "richness" integer) DISTSTYLE EVEN'
+        expect(DB).to receive(:execute_ddl).with(sql)
 
-          DB.create_table :chocolates do
-             String :name
+        DB.create_table :chocolates, diststyle: :even do
+          varchar :region
+          Integer :richness
+        end
+      end
+
+      it 'does not accept invalid distkeys' do
+        expect { DB.create_table :monkeys, diststyle: :bananas }.to raise_error(ArgumentError, 'diststyle must be one of :even, key, or :all')
+      end
+
+      describe 'column types' do
+        describe 'string uuid' do
+          it 'supports fixed-width string uuid columns' do
+            sql = 'CREATE TABLE "chocolates" ("id" char(36) NOT NULL)'
+            expect(DB).to receive(:execute_ddl).with(sql)
+
+            DB.create_table :chocolates do
+              Suuid :id
+            end
+          end
+        end
+
+        describe 'string' do
+          it 'uses varchar instead of text column type' do
+            sql = 'CREATE TABLE "chocolates" ("name" varchar(255))'
+            expect(DB).to receive(:execute_ddl).with(sql)
+
+            DB.create_table :chocolates do
+               String :name
+            end
           end
         end
       end
+    end
+  end
+
+  describe '#optimize_table' do
+    before do
+      DB.create_table! :characters do
+        String :name
+        String :ability
+        Fixnum :age
+        String :accent
+      end
+    end
+
+    it 'should reset the sortkeys' do
+      sqls = [
+          'ALTER TABLE "characters" RENAME TO "old_characters"',
+          'CREATE TABLE "new_characters" ("name" varchar(255), "ability" varchar(255), "age" integer, "accent" varchar(255)) INTERLEAVED SORTKEY (name)',
+          ['INSERT INTO "new_characters" (SELECT * FROM "old_characters")', {}],
+          'ALTER TABLE "new_characters" RENAME TO "characters"',
+          'DROP TABLE "old_characters"',
+      ]
+      sqls.each do |sql|
+        expect(DB).to receive(:execute_ddl).with(*sql).ordered
+      end
+
+      DB.optimize_table :characters, sortkeys: [:name], sortstyle: :interleaved
+    end
+
+    it 'should run in a transaction' do
+      expect(DB).to receive(:transaction).and_call_original
+      DB.optimize_table :characters, sortkeys: :accent
     end
   end
 
