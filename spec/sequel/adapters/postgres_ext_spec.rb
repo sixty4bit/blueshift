@@ -20,23 +20,33 @@ RSpec.describe Sequel::Postgres do
 
   describe 'schema dumper' do
     subject { PGDB.dump_table_schema(:apples) }
+    let(:suuid_column_definition) { [:foreign_table_id] }
+    let(:suuid_column) { '  Suuid :foreign_table_id, :null=>false' }
 
     let(:create_macro) do
       ['create_table!(:apples) do',
        '  String :crunchiness, :text=>true',
        '  column :id, :uuid',
-       '  Suuid :foreign_table_id, :null=>false',
+       suuid_column,
        'end'].join("\n")
     end
 
     before do
+      suuid_options = suuid_column_definition
       PGDB.create_table!(:apples, sortkeys: [:crunchiness]) do
         String :crunchiness
         column :id, :uuid
-        Suuid :foreign_table_id
+        Suuid *suuid_options
       end
     end
 
     it { is_expected.to eq create_macro }
+
+    context 'with additional options' do
+      let(:suuid_column_definition) { [:foreign_table_id, {null: true}] }
+      let(:suuid_column) { '  Suuid :foreign_table_id' }
+
+      it { is_expected.to eq create_macro }
+    end
   end
 end
