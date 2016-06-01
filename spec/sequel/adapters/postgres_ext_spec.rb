@@ -7,7 +7,7 @@ RSpec.describe Sequel::Postgres do
     describe 'column types' do
       describe 'string uuid' do
         it 'supports fixed-width string uuid columns' do
-          sql = 'CREATE TABLE "chocolates" ("id" char(36) NOT NULL)'
+          sql = 'CREATE TABLE "chocolates" ("id" char(36))'
           expect(PGDB).to receive(:execute_ddl).with(sql)
 
           PGDB.create_table :chocolates do
@@ -21,7 +21,7 @@ RSpec.describe Sequel::Postgres do
   describe 'schema dumper' do
     subject { PGDB.dump_table_schema(:apples) }
     let(:suuid_column_definition) { [:foreign_table_id] }
-    let(:suuid_column) { '  Suuid :foreign_table_id, :null=>false' }
+    let(:suuid_column) { '  Suuid :foreign_table_id' }
 
     let(:create_macro) do
       ['create_table!(:apples) do',
@@ -43,8 +43,8 @@ RSpec.describe Sequel::Postgres do
     it { is_expected.to eq create_macro }
 
     context 'with additional options' do
-      let(:suuid_column_definition) { [:foreign_table_id, {null: true}] }
-      let(:suuid_column) { '  Suuid :foreign_table_id' }
+      let(:suuid_column_definition) { [:foreign_table_id, {null: false}] }
+      let(:suuid_column) { '  Suuid :foreign_table_id, :null=>false' }
 
       it { is_expected.to eq create_macro }
     end

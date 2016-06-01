@@ -7,7 +7,6 @@ module Sequel
       def type_literal_generic_suuid(column)
         column[:fixed] = true
         column[:size] = 36
-        column[:null] ||= false
         type_literal_generic_string(column)
       end
     end

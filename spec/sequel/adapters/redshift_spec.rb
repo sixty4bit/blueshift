@@ -81,11 +81,20 @@ RSpec.describe Sequel::Redshift do
       describe 'column types' do
         describe 'string uuid' do
           it 'supports fixed-width string uuid columns' do
-            sql = 'CREATE TABLE "chocolates" ("id" char(36) NOT NULL)'
+            sql = 'CREATE TABLE "chocolates" ("id" char(36))'
             expect(DB).to receive(:execute_ddl).with(sql)
 
             DB.create_table :chocolates do
               Suuid :id
+            end
+          end
+
+          it 'supports fixed-width string uuid columns that can be not nullable' do
+            sql = 'CREATE TABLE "chocolates" ("id" char(36) NOT NULL)'
+            expect(DB).to receive(:execute_ddl).with(sql)
+
+            DB.create_table :chocolates do
+              Suuid :id, null: false
             end
           end
         end

@@ -9,6 +9,7 @@ describe Sequel::Redshift::SchemaDumper do
      '  String :region, :size=>255',
      '  String :crunchiness, :size=>255',
      '  String :colour, :size=>255',
+     '  Suuid :field_id, :null=>false',
      'end',].join("\n")
   end
 
@@ -17,6 +18,7 @@ describe Sequel::Redshift::SchemaDumper do
       String :region
       String :crunchiness
       String :colour
+      Suuid  :field_id, null: false
     end
   end
 
