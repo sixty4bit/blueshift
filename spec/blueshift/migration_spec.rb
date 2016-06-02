@@ -94,11 +94,36 @@ describe Blueshift::Migration do
   end
 
   describe '.insert_into_schema_migrations' do
-    let(:migrations_count) {  Dir["db/migrations/*"].count }
+    let(:migrations_count) {  Dir["spec/support/db/migrations/*"].count }
 
     it 'writes to the schema migrations table' do
       expect_any_instance_of(Sequel::Postgres::Dataset).to receive(:insert).exactly(migrations_count).times
       Blueshift::Migration.insert_into_schema_migrations(Blueshift::POSTGRES_DB)
+    end
+  end
+
+  describe '.rollback!' do
+    it 'should rollback the latest applied migration for Postgres' do
+      Blueshift::Migration.run_pg!
+
+      expect(Blueshift::Migration).to receive(:run_pg!).with(target: 20160601192854)
+      Blueshift::Migration.rollback!(:pg)
+    end
+
+    it 'should rollback the latest applied migration for Redshift' do
+      Blueshift::Migration.run_redshift!
+
+      expect(Blueshift::Migration).to receive(:run_redshift!).with(target: 20160601192854)
+      Blueshift::Migration.rollback!(:redshift)
+    end
+
+    context 'when there are newer, unapplied migration files in the directory' do
+      it 'should only rollback the latest applied migration' do
+        Blueshift::Migration.run_pg!(target: 20160601192854)
+
+        expect(Blueshift::Migration).to receive(:run_pg!).with(target: 0)
+        Blueshift::Migration.rollback!(:pg)
+      end
     end
   end
 end

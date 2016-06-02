@@ -34,6 +34,12 @@ namespace :pg do
     Blueshift::Migration.run_pg!
     Rake::Task['pg:schema:dump'].invoke
   end
+
+  desc 'Rollback the latest applied migration for Postgres'
+  task :rollback do
+    Blueshift::Migration.rollback!(:pg)
+    Rake::Task['pg:schema:dump'].invoke
+  end
 end
 
 
@@ -60,6 +66,12 @@ namespace :redshift do
     Blueshift::REDSHIFT_DB.logger = logger
     Blueshift::Migration.run_redshift!
     Rake::Task['redshift:schema:dump'].invoke
+  end
+
+  desc 'Rollback the latest applied migration for Redshift'
+  task :rollback do
+    Blueshift::Migration.rollback!(:redshift)
+    Rake::Task['pg:schema:dump'].invoke
   end
 end
 

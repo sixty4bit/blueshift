@@ -2,7 +2,10 @@ Bundler.require(:test)
 $LOAD_PATH.unshift File.expand_path('../../lib', __FILE__)
 require 'dotenv'
 Dotenv.load
-require 'blueshift'
+
+Dir.chdir('spec/support') do
+  require 'blueshift'
+end
 
 
 DB = Sequel.connect(ENV['REDSHIFT_URL'] || 'redshift://localhost/db', logger: Logger.new('test.log'))
@@ -16,5 +19,4 @@ RSpec.configure do |config|
   config.filter_run :focus
   config.run_all_when_everything_filtered = true
 end
-
 

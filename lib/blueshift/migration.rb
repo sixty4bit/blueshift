@@ -5,6 +5,7 @@ require 'logger'
 module Blueshift
   REDSHIFT_DB = Sequel.connect(ENV.fetch('REDSHIFT_URL', 'redshift://'), logger: Logger.new('redshift.log'))
   POSTGRES_DB = Sequel.connect(ENV.fetch('DATABASE_URL', 'postgres://'), logger: Logger.new('postgres.log'))
+  DBS = { pg: POSTGRES_DB, redshift: REDSHIFT_DB }
 
   class Migration
     attr_reader :postgres_migration, :redshift_migration, :use_transactions
@@ -47,17 +48,22 @@ module Blueshift
     end
 
     class << self
-      def run_pg!
-        Sequel::Migrator.run(POSTGRES_DB, MIGRATION_DIR)
+      def run_pg!(options = {})
+        Sequel::Migrator.run(POSTGRES_DB, MIGRATION_DIR, options)
       end
 
-      def run_redshift!
-        Sequel::Migrator.run(REDSHIFT_DB, MIGRATION_DIR)
+      def run_redshift!(options = {})
+        Sequel::Migrator.run(REDSHIFT_DB, MIGRATION_DIR, options)
       end
 
       def run_both!
         run_pg!
         run_redshift!
+      end
+
+      def rollback!(db_type)
+        target = Sequel::TimestampMigrator.new(DBS[db_type], MIGRATION_DIR).applied_migrations[-2].to_i
+        public_send("run_#{db_type}!", target: target)
       end
 
       def insert_into_schema_migrations(db)
