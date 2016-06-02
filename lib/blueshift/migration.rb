@@ -8,7 +8,8 @@ module Blueshift
   DBS = { pg: POSTGRES_DB, redshift: REDSHIFT_DB }
 
   class Migration
-    attr_reader :postgres_migration, :redshift_migration, :use_transactions
+    attr_reader :postgres_migration, :redshift_migration
+    attr_accessor :use_transactions
     MIGRATION_DIR = File.join(Dir.pwd, 'db/migrations')
     SCHEMA_TABLE  = :schema_migrations
     SCHEMA_COLUMN = :filename
@@ -37,6 +38,10 @@ module Blueshift
 
     def reddown(&block)
       redshift_migration.down = block
+    end
+
+    def no_transaction
+      self.use_transactions = false
     end
 
     def apply(db, direction)

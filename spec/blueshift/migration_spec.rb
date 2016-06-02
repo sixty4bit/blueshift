@@ -70,6 +70,12 @@ describe Blueshift::Migration do
     end
   end
 
+  describe '#no_transaction' do
+    it 'should disable the use of transactions' do
+      expect { subject.no_transaction }.to change(subject, :use_transactions).to(false)
+    end
+  end
+
   describe '.run_both!' do
     it 'should run the migrations for both Postgres and Redshift' do
       expect(Sequel::Migrator).to receive(:run).ordered do |db, dir|
