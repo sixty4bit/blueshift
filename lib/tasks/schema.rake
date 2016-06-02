@@ -71,7 +71,7 @@ namespace :redshift do
   desc 'Rollback the latest applied migration for Redshift'
   task :rollback do
     Blueshift::Migration.rollback!(:redshift)
-    Rake::Task['pg:schema:dump'].invoke
+    Rake::Task['redshift:schema:dump'].invoke
   end
 end
 
@@ -81,4 +81,3 @@ namespace :blueshift do
     puts 'Running migrations for Postgres and Redshift...', ''
   end
 end
-
