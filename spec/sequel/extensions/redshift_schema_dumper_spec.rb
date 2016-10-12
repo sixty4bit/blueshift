@@ -66,5 +66,11 @@ describe Sequel::Redshift::SchemaDumper do
     it 'should not blow up' do
       expect(DB.dump_schema_migration).to be_a String
     end
+
+    it 'should not have any trailing whitespaces' do
+      DB.dump_schema_migration.each_line do |line|
+        expect(line).to_not end_with(/\s+\n/)
+      end
+    end
   end
 end
