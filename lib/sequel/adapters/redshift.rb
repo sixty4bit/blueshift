@@ -88,26 +88,25 @@ module Sequel
       def schema_parse_table(table_name, opts)
         m = output_identifier_meth(opts[:dataset])
         ds = metadata_dataset.select(:pg_attribute__attname___name,
-                                     SQL::Cast.new(:pg_attribute__atttypid, :integer).as(:oid),
-                                     SQL::Cast.new(:basetype__oid, :integer).as(:base_oid),
-                                     SQL::Function.new(:format_type, :basetype__oid, :pg_type__typtypmod).as(:db_base_type),
-                                     SQL::Function.new(:format_type, :pg_type__oid, :pg_attribute__atttypmod).as(:db_type),
-                                     SQL::Function.new(:pg_get_expr, :pg_attrdef__adbin, :pg_class__oid).as(:default),
-                                     SQL::BooleanExpression.new(:NOT, :pg_attribute__attnotnull).as(:allow_null),
-                                     SQL::Function.new(:COALESCE,
-                                                       SQL::BooleanExpression.from_value_pairs(:name => 'id'),
-                                                       schema_migrations_column_name(table_name),
-                                                       false).as(:primary_key)).
-            from(:pg_class).
-            join(:pg_attribute, :attrelid=>:oid).
-            join(:pg_type, :oid=>:atttypid).
-            left_outer_join(:pg_type___basetype, :oid=>:typbasetype).
-            left_outer_join(:pg_attrdef, :adrelid=>:pg_class__oid, :adnum=>:pg_attribute__attnum).
-            left_outer_join(:pg_index, :indrelid=>:pg_class__oid, :indisprimary=>true).
-            filter(:pg_attribute__attisdropped=>false).
-            filter{|o| o.pg_attribute__attnum > 0}.
-            filter(:pg_class__oid=>regclass_oid(table_name, opts)).
-            order(:pg_attribute__attnum)
+            SQL::Cast.new(:pg_attribute__atttypid, :integer).as(:oid),
+            SQL::Cast.new(:basetype__oid, :integer).as(:base_oid),
+            SQL::Function.new(:format_type, :basetype__oid, :pg_type__typtypmod).as(:db_base_type),
+            SQL::Function.new(:format_type, :pg_type__oid, :pg_attribute__atttypmod).as(:db_type),
+            SQL::Function.new(:pg_get_expr, :pg_attrdef__adbin, :pg_class__oid).as(:default),
+            SQL::BooleanExpression.new(:NOT, :pg_attribute__attnotnull).as(:allow_null),
+            SQL::Function.new(:COALESCE, SQL::BooleanExpression.from_value_pairs(:pg_attribute__attnum => SQL::Function.new(:ANY,
+              SQL::Function.new(:string_to_array, SQL::Function.new(:textin, SQL::Function.new(:int2vectorout, :pg_index__indkey)), ' ')
+            )), false).as(:primary_key)).
+          from(:pg_class).
+          join(:pg_attribute, :attrelid=>:oid).
+          join(:pg_type, :oid=>:atttypid).
+          left_outer_join(:pg_type___basetype, :oid=>:typbasetype).
+          left_outer_join(:pg_attrdef, :adrelid=>:pg_class__oid, :adnum=>:pg_attribute__attnum).
+          left_outer_join(:pg_index, :indrelid=>:pg_class__oid, :indisprimary=>true).
+          filter(:pg_attribute__attisdropped=>false).
+          filter{|o| o.pg_attribute__attnum > 0}.
+          filter(:pg_class__oid=>regclass_oid(table_name, opts)).
+          order(:pg_attribute__attnum)
         ds.map do |row|
           row[:default] = nil if blank_object?(row[:default])
           if row[:base_oid]
@@ -125,10 +124,6 @@ module Sequel
           end
           [m.call(row.delete(:name)), row]
         end
-      end
-
-      def schema_migrations_column_name(table_name)
-        #SQL::BooleanExpression.from_value_pairs(:name => 'filename') if table_name == :schema_migrations
       end
     end
 

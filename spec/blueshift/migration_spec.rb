@@ -90,7 +90,7 @@ describe Blueshift::Migration do
       Blueshift::Migration.run_both!
     end
 
-    xit 'should work' do
+    it 'should work' do
       Blueshift::POSTGRES_DB[:schema_migrations].delete if Blueshift::POSTGRES_DB.table_exists?(:schema_migrations)
       Blueshift::REDSHIFT_DB[:schema_migrations].delete if Blueshift::REDSHIFT_DB.table_exists?(:schema_migrations)
       FileUtils.mkdir_p('db/migrations')
