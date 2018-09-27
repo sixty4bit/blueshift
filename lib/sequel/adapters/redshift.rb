@@ -135,6 +135,10 @@ module Sequel
         # do nothing here
         sql
       end
+
+      def supports_returning?(type)
+        false
+      end
     end
   end
 end
